@@ -260,7 +260,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
-		String[] candidateNames = registry.getBeanDefinitionNames();
+		String[] candidateNames = registry.getBeanDefinitionNames(); // 获取 registry 中的 beanDefinitionNames
 
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
@@ -270,7 +270,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
-			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
+			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) { // beanDefinition 是否是 @Configuration 配置类
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}
@@ -304,14 +304,14 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			this.environment = new StandardEnvironment();
 		}
 
-		// Parse each @Configuration class
+		// Parse each @Configuration class. 创建 配置类 解析器
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
 
-		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
-		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
-		do {
+		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates); // 所有配置类
+		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size()); // 已经解析过的配置类
+		do { // 遍历,解析所有 配置类
 			parser.parse(candidates);
 			parser.validate();
 
@@ -324,7 +324,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			this.reader.loadBeanDefinitions(configClasses);
+			this.reader.loadBeanDefinitions(configClasses); // 把前面解析出来的对象注册到容器中
 			alreadyParsed.addAll(configClasses);
 
 			candidates.clear();
