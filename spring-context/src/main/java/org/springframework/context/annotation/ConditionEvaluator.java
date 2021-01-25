@@ -71,14 +71,14 @@ class ConditionEvaluator {
 		return shouldSkip(metadata, null);
 	}
 
-	/**
+	/** 根据 @Conditional 注解 确定是否应该跳过某项
 	 * Determine if an item should be skipped based on {@code @Conditional} annotations.
 	 * @param metadata the meta data
 	 * @param phase the phase of the call
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
-		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
+		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) { // 必须有 @Conditional 注解
 			return false;
 		}
 
@@ -91,9 +91,9 @@ class ConditionEvaluator {
 		}
 
 		List<Condition> conditions = new ArrayList<>();
-		for (String[] conditionClasses : getConditionClasses(metadata)) {
-			for (String conditionClass : conditionClasses) {
-				Condition condition = getCondition(conditionClass, this.context.getClassLoader());
+		for (String[] conditionClasses : getConditionClasses(metadata)) { // 获取所有 Conditional 注解
+			for (String conditionClass : conditionClasses) { // 遍历获取到的 Conditional 类名,如 org.springframework.boot.autoconfigure.condition.OnBeanCondition
+				Condition condition = getCondition(conditionClass, this.context.getClassLoader()); // 根据 name 获取 Condition 类
 				conditions.add(condition);
 			}
 		}
@@ -103,7 +103,7 @@ class ConditionEvaluator {
 		for (Condition condition : conditions) {
 			ConfigurationPhase requiredPhase = null;
 			if (condition instanceof ConfigurationCondition) {
-				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
+				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase(); // ConfigurationCondition 类型的 condition,获取 条件注解的生效阶段
 			}
 			if ((requiredPhase == null || requiredPhase == phase) && !condition.matches(this.context, metadata)) {
 				return true;

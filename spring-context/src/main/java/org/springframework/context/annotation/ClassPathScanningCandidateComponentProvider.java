@@ -313,7 +313,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
 		else {
-			return scanCandidateComponents(basePackage);
+			return scanCandidateComponents(basePackage); // 扫描 basePackage 下的 components
 		}
 	}
 
@@ -417,11 +417,11 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
+					resolveBasePackage(basePackage) + '/' + this.resourcePattern; // 添加 classpath* 前缀的路径
+			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath); // 获取所有 .class 类
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
-			for (Resource resource : resources) {
+			for (Resource resource : resources) { // 遍历 resources
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
@@ -495,7 +495,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		}
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
-				return isConditionMatch(metadataReader);
+				return isConditionMatch(metadataReader); // 返回是否条件匹配
 			}
 		}
 		return false;
@@ -510,7 +510,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private boolean isConditionMatch(MetadataReader metadataReader) {
 		if (this.conditionEvaluator == null) {
 			this.conditionEvaluator =
-					new ConditionEvaluator(getRegistry(), this.environment, this.resourcePatternResolver);
+					new ConditionEvaluator(getRegistry(), this.environment, this.resourcePatternResolver); // condition 鉴别
 		}
 		return !this.conditionEvaluator.shouldSkip(metadataReader.getAnnotationMetadata());
 	}

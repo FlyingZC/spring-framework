@@ -72,7 +72,7 @@ class ComponentScanAnnotationParser {
 		this.registry = registry;
 	}
 
-
+	/** 解析 componentScan 注解上的属性到 scanner对象中 */
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
@@ -93,28 +93,28 @@ class ComponentScanAnnotationParser {
 
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
-		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
+		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) { // componentScan 注解的 includeFilters 属性处理
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
 			}
 		}
-		for (AnnotationAttributes filter : componentScan.getAnnotationArray("excludeFilters")) {
+		for (AnnotationAttributes filter : componentScan.getAnnotationArray("excludeFilters")) { // componentScan 注解的 excludeFilters 属性处理
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addExcludeFilter(typeFilter);
 			}
 		}
 
-		boolean lazyInit = componentScan.getBoolean("lazyInit");
+		boolean lazyInit = componentScan.getBoolean("lazyInit"); // componentScan 注解的 lazyInit 属性处理
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
 
 		Set<String> basePackages = new LinkedHashSet<>();
-		String[] basePackagesArray = componentScan.getStringArray("basePackages");
+		String[] basePackagesArray = componentScan.getStringArray("basePackages"); // componentScan 注解的 basePackages 属性处理
 		for (String pkg : basePackagesArray) {
 			String[] tokenized = StringUtils.tokenizeToStringArray(this.environment.resolvePlaceholders(pkg),
-					ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-			Collections.addAll(basePackages, tokenized);
+					ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS); // 拆分
+			Collections.addAll(basePackages, tokenized); // 添加到 basePackages 里
 		}
 		for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
 			basePackages.add(ClassUtils.getPackageName(clazz));
@@ -129,7 +129,7 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
-		return scanner.doScan(StringUtils.toStringArray(basePackages));
+		return scanner.doScan(StringUtils.toStringArray(basePackages)); // 具体扫描 basePackages 逻辑
 	}
 
 	private List<TypeFilter> typeFiltersFor(AnnotationAttributes filterAttributes) {

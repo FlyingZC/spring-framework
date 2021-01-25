@@ -19,7 +19,7 @@ package org.springframework.context.annotation;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-/**
+/** 条件匹配,则注册bean
  * A single {@code condition} that must be {@linkplain #matches matched} in order
  * for a component to be registered.
  *
@@ -41,7 +41,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @FunctionalInterface
 public interface Condition {
 
-	/**
+	/** matches方法判断其条件是否成立,如果不成立,则会阻止该bean的注册.
 	 * Determine if the condition matches.
 	 * @param context the condition context
 	 * @param metadata metadata of the {@link org.springframework.core.type.AnnotationMetadata class}

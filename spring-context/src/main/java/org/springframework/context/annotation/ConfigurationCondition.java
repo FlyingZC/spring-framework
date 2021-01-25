@@ -29,13 +29,13 @@ package org.springframework.context.annotation;
  */
 public interface ConfigurationCondition extends Condition {
 
-	/**
+	/** 获取 配置阶段
 	 * Return the {@link ConfigurationPhase} in which the condition should be evaluated.
 	 */
 	ConfigurationPhase getConfigurationPhase();
 
 
-	/**
+	/** 可以评估条件的 各种配置阶段
 	 * The various configuration phases where the condition could be evaluated.
 	 */
 	enum ConfigurationPhase {

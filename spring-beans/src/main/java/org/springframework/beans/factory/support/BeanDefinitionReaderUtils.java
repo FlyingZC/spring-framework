@@ -119,12 +119,12 @@ public abstract class BeanDefinitionReaderUtils {
 		}
 
 		String id = generatedBeanName;
-		if (isInnerBean) {
-			// Inner bean: generate identity hashcode suffix.
+		if (isInnerBean) { // 内部类
+			// Inner bean: generate identity hashcode suffix.添加hashCode后缀
 			id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
 		}
 		else {
-			// Top-level bean: use plain class name with unique suffix if necessary.
+			// Top-level bean: use plain class name with unique suffix if necessary.使用beanName,如果需要再加唯一后缀
 			return uniqueBeanName(generatedBeanName, registry);
 		}
 		return id;
@@ -143,7 +143,7 @@ public abstract class BeanDefinitionReaderUtils {
 		String id = beanName;
 		int counter = -1;
 
-		// Increase counter until the id is unique.
+		// Increase counter until the id is unique.增加计数直到id唯一
 		while (counter == -1 || registry.containsBeanDefinition(id)) {
 			counter++;
 			id = beanName + GENERATED_BEAN_NAME_SEPARATOR + counter;
