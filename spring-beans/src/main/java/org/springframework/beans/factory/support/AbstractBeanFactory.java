@@ -1000,11 +1000,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Override
 	public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
 		String beanName = transformedBeanName(name);
-		// Efficiently check whether bean definition exists in this factory.
+		// Efficiently check whether bean definition exists in this factory. 如果当前beanFactory里不存在beanName对应的beanDefinition,则获取 parentBeanFactory
 		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
-			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
+			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName); // 递归向 parentBeanFactory 里 查找 beanDefinition并合并
 		}
-		// Resolve merged bean definition locally.
+		// Resolve merged bean definition locally.在当前beanFactory中合并beanDefinition
 		return getMergedLocalBeanDefinition(beanName);
 	}
 
@@ -1214,11 +1214,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.
-		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
-		if (mbd != null) {
+		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName); // 每一层 beanFactory 都会有一个 mergedBeanDefinitions 缓存
+		if (mbd != null) { // 缓存中能查找直接返回
 			return mbd;
 		}
-		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
+		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName)); // 上面缓存没命中,继续查找
 	}
 
 	/**
@@ -1253,29 +1253,29 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			RootBeanDefinition mbd = null;
 
 			// Check with full lock now in order to enforce the same merged instance.
-			if (containingBd == null) {
-				mbd = this.mergedBeanDefinitions.get(beanName);
+			if (containingBd == null) { // 说明是 顶层bean,当前beanDefinition不是嵌套的
+				mbd = this.mergedBeanDefinitions.get(beanName); // 再查找一次缓存
 			}
 
-			if (mbd == null) {
-				if (bd.getParentName() == null) {
+			if (mbd == null) { // 缓存中没查到,则走创建 RootBeanDefinition 流程
+				if (bd.getParentName() == null) { // 如果 beanDefinition没有parent属性,说明是 RootBeanDefinition
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
-						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
+						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition(); // RootBeanDefinition 无需做后续的merge操作,直接clone后返回
 					}
 					else {
-						mbd = new RootBeanDefinition(bd);
+						mbd = new RootBeanDefinition(bd); // 包装成 RootBeanDefinition 返回
 					}
 				}
-				else {
+				else { // beanDefinition有parent属性的情况
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
-						String parentBeanName = transformedBeanName(bd.getParentName());
-						if (!beanName.equals(parentBeanName)) {
-							pbd = getMergedBeanDefinition(parentBeanName);
+						String parentBeanName = transformedBeanName(bd.getParentName()); // parentBeanNmae名称处理
+						if (!beanName.equals(parentBeanName)) { // beanName 和 parentBeanName 不相同的情况
+							pbd = getMergedBeanDefinition(parentBeanName); // 递归根据 parentBeanName 从当前 beanFactory 里查找 MergedBeanDefinition,因为 parentBeanDefiniton也有可能是个merge bean(parentBean还有parent属性的情况)
 						}
-						else {
+						else {  // beanName 和 parentBeanName 相同的情况(同一个beanFactory中beanName唯一,所以向父beanFactory中查找),则向父beanFactory中查找
 							BeanFactory parent = getParentBeanFactory();
 							if (parent instanceof ConfigurableBeanFactory) {
 								pbd = ((ConfigurableBeanFactory) parent).getMergedBeanDefinition(parentBeanName);

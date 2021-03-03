@@ -81,13 +81,13 @@ public class InjectionMetadata {
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
 		Collection<InjectedElement> checkedElements = this.checkedElements;
 		Collection<InjectedElement> elementsToIterate =
-				(checkedElements != null ? checkedElements : this.injectedElements);
+				(checkedElements != null ? checkedElements : this.injectedElements); // 要注入的字段集合
 		if (!elementsToIterate.isEmpty()) {
-			for (InjectedElement element : elementsToIterate) {
+			for (InjectedElement element : elementsToIterate) { // 遍历每个字段 注入
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
-				element.inject(target, beanName, pvs);
+				element.inject(target, beanName, pvs); // 依赖注入
 			}
 		}
 	}
@@ -175,7 +175,7 @@ public class InjectionMetadata {
 				throws Throwable {
 
 			if (this.isField) {
-				Field field = (Field) this.member;
+				Field field = (Field) this.member; // 获取要注入的字段
 				ReflectionUtils.makeAccessible(field);
 				field.set(target, getResourceToInject(target, requestingBeanName));
 			}

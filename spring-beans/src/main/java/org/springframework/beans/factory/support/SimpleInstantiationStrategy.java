@@ -61,12 +61,12 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
 		if (!bd.hasMethodOverrides()) {
-			Constructor<?> constructorToUse;
+			Constructor<?> constructorToUse; // 保存 最终使用的构造器
 			synchronized (bd.constructorArgumentLock) {
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
 				if (constructorToUse == null) {
-					final Class<?> clazz = bd.getBeanClass();
-					if (clazz.isInterface()) {
+					final Class<?> clazz = bd.getBeanClass(); // 获取 beanDefinition 对应的 Class
+					if (clazz.isInterface()) { // 不能是接口
 						throw new BeanInstantiationException(clazz, "Specified class is an interface");
 					}
 					try {
@@ -75,16 +75,16 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						}
 						else {
-							constructorToUse = clazz.getDeclaredConstructor();
+							constructorToUse = clazz.getDeclaredConstructor(); // 获取无参构造器
 						}
-						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+						bd.resolvedConstructorOrFactoryMethod = constructorToUse; // resolvedConstructorOrFactoryMethod 标识已经处理过了,下次创建同一个bean时不会再重复操作
 					}
 					catch (Throwable ex) {
 						throw new BeanInstantiationException(clazz, "No default constructor found", ex);
 					}
 				}
 			}
-			return BeanUtils.instantiateClass(constructorToUse);
+			return BeanUtils.instantiateClass(constructorToUse); // 反射通过构造器实例化bean
 		}
 		else {
 			// Must generate CGLIB subclass.

@@ -345,7 +345,7 @@ class BeanDefinitionValueResolver {
 		return actualInnerBeanName;
 	}
 
-	/**
+	/** 处理依赖的bean
 	 * Resolve a reference to another bean in the factory.
 	 */
 	@Nullable
@@ -364,7 +364,7 @@ class BeanDefinitionValueResolver {
 				bean = this.beanFactory.getParentBeanFactory().getBean(refName);
 			}
 			else {
-				bean = this.beanFactory.getBean(refName);
+				bean = this.beanFactory.getBean(refName); // 获取依赖的bean
 				this.beanFactory.registerDependentBean(refName, this.beanName);
 			}
 			if (bean instanceof NullBean) {

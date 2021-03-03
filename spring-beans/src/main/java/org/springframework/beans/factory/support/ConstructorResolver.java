@@ -879,14 +879,14 @@ class ConstructorResolver {
 	}
 
 	static InjectionPoint setCurrentInjectionPoint(@Nullable InjectionPoint injectionPoint) {
-		InjectionPoint old = currentInjectionPoint.get();
-		if (injectionPoint != null) {
-			currentInjectionPoint.set(injectionPoint);
+		InjectionPoint old = currentInjectionPoint.get(); // 获取之前的
+		if (injectionPoint != null) { // 当前传入的入参不为空
+			currentInjectionPoint.set(injectionPoint); // 缓存当前的
 		}
-		else {
-			currentInjectionPoint.remove();
+		else { // 当前传入的为空
+			currentInjectionPoint.remove(); // 移除缓存
 		}
-		return old;
+		return old; // 返回之前的
 	}
 
 

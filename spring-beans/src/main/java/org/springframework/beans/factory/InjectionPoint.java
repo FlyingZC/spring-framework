@@ -41,7 +41,7 @@ public class InjectionPoint {
 
 	@Nullable
 	protected MethodParameter methodParameter;
-
+	// 当前要注入的属性的 Field
 	@Nullable
 	protected Field field;
 

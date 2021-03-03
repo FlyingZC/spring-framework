@@ -52,9 +52,9 @@ import org.springframework.util.ObjectUtils;
  */
 @SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
-
+	// 所在的声明类
 	private final Class<?> declaringClass;
-
+	// 方法名
 	@Nullable
 	private String methodName;
 
@@ -62,12 +62,12 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	private Class<?>[] parameterTypes;
 
 	private int parameterIndex;
-
+	// field名
 	@Nullable
 	private String fieldName;
-
+	// 比如@Autowired里的required属性
 	private final boolean required;
-
+	// 和lazy相对
 	private final boolean eager;
 
 	private int nestingLevel = 1;
@@ -77,7 +77,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	@Nullable
 	private transient volatile ResolvableType resolvableType;
-
+	// 类型描述符
 	@Nullable
 	private transient volatile TypeDescriptor typeDescriptor;
 

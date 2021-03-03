@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  * @see PropertiesPropertySource
  */
 public class MapPropertySource extends EnumerablePropertySource<Map<String, Object>> {
-
+	// name: key, source:valuesMap
 	public MapPropertySource(String name, Map<String, Object> source) {
 		super(name, source);
 	}
