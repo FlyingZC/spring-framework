@@ -29,7 +29,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.util.ObjectUtils;
 
-/**
+/** 1.beanDefinition合并阶段缓存所有 applicationListener; 2.bean初始化后阶段 添加所有 单例的 applicationListener 到 applicationContext 中; 3.销毁前阶段 移除掉所有 applicationListener.
  * {@code BeanPostProcessor} that detects beans which implement the {@code ApplicationListener}
  * interface. This catches beans that can't reliably be detected by {@code getBeanNamesForType}
  * and related operations which only work against top-level beans.
@@ -42,7 +42,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 4.3.4
  */
-class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
+class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor { // 销毁阶段,beanDefinition合并阶段
 
 	private static final Log logger = LogFactory.getLog(ApplicationListenerDetector.class);
 
@@ -57,8 +57,8 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 
 
 	@Override
-	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
-		this.singletonNames.put(beanName, beanDefinition.isSingleton());
+	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) { // beanDefinition合并阶段
+		this.singletonNames.put(beanName, beanDefinition.isSingleton()); // 这里应该存储的是 applicationListener
 	}
 
 	@Override
@@ -67,15 +67,15 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 	}
 
 	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		if (bean instanceof ApplicationListener) {
+	public Object postProcessAfterInitialization(Object bean, String beanName) { // bean初始化后阶段
+		if (bean instanceof ApplicationListener) { // 只处理 ApplicationListener 类型
 			// potentially not detected as a listener by getBeanNamesForType retrieval
-			Boolean flag = this.singletonNames.get(beanName);
-			if (Boolean.TRUE.equals(flag)) {
+			Boolean flag = this.singletonNames.get(beanName); // 判断是否是单例
+			if (Boolean.TRUE.equals(flag)) { // 单例
 				// singleton bean (top-level or inner): register on the fly
-				this.applicationContext.addApplicationListener((ApplicationListener<?>) bean);
+				this.applicationContext.addApplicationListener((ApplicationListener<?>) bean); // 单例添加到 applicationContext 中
 			}
-			else if (Boolean.FALSE.equals(flag)) {
+			else if (Boolean.FALSE.equals(flag)) { // 非单例
 				if (logger.isWarnEnabled() && !this.applicationContext.containsBean(beanName)) {
 					// inner bean with other scope - can't reliably process events
 					logger.warn("Inner bean '" + beanName + "' implements ApplicationListener interface " +
@@ -83,16 +83,16 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 							"because it does not have singleton scope. Only top-level listener beans are allowed " +
 							"to be of non-singleton scope.");
 				}
-				this.singletonNames.remove(beanName);
+				this.singletonNames.remove(beanName); // 从缓存中移除
 			}
 		}
 		return bean;
 	}
 
 	@Override
-	public void postProcessBeforeDestruction(Object bean, String beanName) {
+	public void postProcessBeforeDestruction(Object bean, String beanName) { // 销毁前阶段
 		if (bean instanceof ApplicationListener) {
-			try {
+			try { // 移除 listener
 				ApplicationEventMulticaster multicaster = this.applicationContext.getApplicationEventMulticaster();
 				multicaster.removeApplicationListener((ApplicationListener<?>) bean);
 				multicaster.removeApplicationListenerBean(beanName);

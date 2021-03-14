@@ -46,13 +46,13 @@ import org.springframework.util.Assert;
  * @see AnnotationConfigApplicationContext#register
  */
 public class AnnotatedBeanDefinitionReader {
-
+	// beanDefinition注册中心
 	private final BeanDefinitionRegistry registry;
-
+	// beanName生成器
 	private BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
 
 	private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
-
+	// 条件评估器
 	private ConditionEvaluator conditionEvaluator;
 
 
@@ -214,15 +214,15 @@ public class AnnotatedBeanDefinitionReader {
 			@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
 
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
-		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) { // @Condition 相关注解处理,判断是否取消注册
+		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) { // 1.条件评估. @Condition 相关注解处理,判断是否取消注册
 			return;
 		}
 
 		abd.setInstanceSupplier(instanceSupplier);
-		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
+		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd); // 2.bean范围解析. ScopeMetadataResolver
 		abd.setScope(scopeMetadata.getScopeName());
-		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
-
+		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry)); // 3. beanName生成
+		// 4.注解通用处理,将注解配置设置到 beanDefinition 里
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
@@ -240,10 +240,10 @@ public class AnnotatedBeanDefinitionReader {
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}
-
+		// 将 beanDefinition 包装成 BeanDefinitionHolder
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
-		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
+		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry); // 注册 beanDefinition
 	}
 
 
@@ -253,10 +253,10 @@ public class AnnotatedBeanDefinitionReader {
 	 */
 	private static Environment getOrCreateEnvironment(BeanDefinitionRegistry registry) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-		if (registry instanceof EnvironmentCapable) {
+		if (registry instanceof EnvironmentCapable) { // 如果 注册中心registry 实现了 EnvironmentCapable,直接返回 registry的 environment
 			return ((EnvironmentCapable) registry).getEnvironment();
 		}
-		return new StandardEnvironment();
+		return new StandardEnvironment(); // 创建 StandardEnvironment 返回
 	}
 
 }
