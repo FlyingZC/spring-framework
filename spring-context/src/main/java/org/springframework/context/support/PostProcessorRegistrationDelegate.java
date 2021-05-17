@@ -63,7 +63,7 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>(); // 普通 beanPostProcessors
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>(); // BeanDefinitionRegistryPostProcessor 类型的 beanPostProcessors
 
-			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) { // 遍历所有 beanFactoryPostProcessors
+			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) { // 遍历所有传入的 beanFactoryPostProcessors
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) { // 若是 BeanDefinitionRegistryPostProcessor 类型的 beanPostProcessor
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
@@ -146,18 +146,18 @@ final class PostProcessorRegistrationDelegate {
 		List<BeanFactoryPostProcessor> priorityOrderedPostProcessors = new ArrayList<>();
 		List<String> orderedPostProcessorNames = new ArrayList<>();
 		List<String> nonOrderedPostProcessorNames = new ArrayList<>();
-		for (String ppName : postProcessorNames) {
+		for (String ppName : postProcessorNames) { // 遍历
 			if (processedBeans.contains(ppName)) {
 				// skip - already processed in first phase above
 			}
-			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) { // 实现了 PriorityOrdered 接口
 				priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
 			}
-			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) { // 实现了 Ordered 接口
 				orderedPostProcessorNames.add(ppName);
 			}
 			else {
-				nonOrderedPostProcessorNames.add(ppName);
+				nonOrderedPostProcessorNames.add(ppName); // 普通 beanFactoryPostProcessor
 			}
 		}
 
@@ -176,7 +176,7 @@ final class PostProcessorRegistrationDelegate {
 		// Finally, invoke all other BeanFactoryPostProcessors. 其他 beanFactoryPostProcessor
 		List<BeanFactoryPostProcessor> nonOrderedPostProcessors = new ArrayList<>();
 		for (String postProcessorName : nonOrderedPostProcessorNames) {
-			nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+			nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class)); // 根据 beanName 依赖查找BeanFactoryPostProcessor 并添加
 		}
 		invokeBeanFactoryPostProcessors(nonOrderedPostProcessors, beanFactory);
 
@@ -256,13 +256,13 @@ final class PostProcessorRegistrationDelegate {
 
 	private static void sortPostProcessors(List<?> postProcessors, ConfigurableListableBeanFactory beanFactory) {
 		Comparator<Object> comparatorToUse = null;
-		if (beanFactory instanceof DefaultListableBeanFactory) {
+		if (beanFactory instanceof DefaultListableBeanFactory) { // 获取 Comparator
 			comparatorToUse = ((DefaultListableBeanFactory) beanFactory).getDependencyComparator();
 		}
-		if (comparatorToUse == null) {
+		if (comparatorToUse == null) { // 如果为空,实例化一个 OrderComparator
 			comparatorToUse = OrderComparator.INSTANCE;
 		}
-		postProcessors.sort(comparatorToUse);
+		postProcessors.sort(comparatorToUse); // 排序
 	}
 
 	/**

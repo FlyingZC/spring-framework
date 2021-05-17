@@ -60,7 +60,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
-		if (!bd.hasMethodOverrides()) {
+		if (!bd.hasMethodOverrides()) { // 若不存在方法覆写,则使用反射进行实例化,否则使用 CGLIB.方法覆写与 lookup-method 和 replaced-method 有关
 			Constructor<?> constructorToUse; // 保存 最终使用的构造器
 			synchronized (bd.constructorArgumentLock) {
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
@@ -87,7 +87,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			return BeanUtils.instantiateClass(constructorToUse); // 反射通过构造器实例化bean
 		}
 		else {
-			// Must generate CGLIB subclass.
+			// Must generate CGLIB subclass.存在方法覆写,利用 CGLIB 来完成实例化,需要依赖于 CGLIB 生成子类
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -114,10 +114,10 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					return null;
 				});
 			}
-			return BeanUtils.instantiateClass(ctor, args);
+			return BeanUtils.instantiateClass(ctor, args); // 没有MethodOverrides,直接使用反射实例化即可. // 通过 BeanUtils 直接使用构造器对象实例化 bean
 		}
 		else {
-			return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
+			return instantiateWithMethodInjection(bd, beanName, owner, ctor, args); // 如果配置了 lookup-method、replaced-method 或者 @Lookup 注解等,通过 CGLIB 生成动态代理类
 		}
 	}
 

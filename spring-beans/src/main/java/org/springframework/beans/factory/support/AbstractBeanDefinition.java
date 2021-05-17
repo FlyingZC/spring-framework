@@ -139,7 +139,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	@Nullable
 	private volatile Object beanClass;
-
+	/**bean的作用范围,对应bean属性scope*/
 	@Nullable
 	private String scope = SCOPE_DEFAULT;
 
@@ -396,7 +396,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		this.beanClass = beanClass;
 	}
 
-	/**
+	/** 获取bean的Class对象
 	 * Return the class of the wrapped bean, if already resolved.
 	 * @return the bean class, or {@code null} if none defined
 	 * @throws IllegalStateException if the bean definition does not define a bean class,
@@ -421,7 +421,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		return (this.beanClass instanceof Class);
 	}
 
-	/**
+	/** 根据beanName获取ClassName并缓存到 beanClass 中
 	 * Determine the class of the wrapped bean, resolving it from a
 	 * specified class name if necessary. Will also reload a specified
 	 * Class from its name when called with the bean class already resolved.
@@ -435,7 +435,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		if (className == null) {
 			return null;
 		}
-		Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
+		Class<?> resolvedClass = ClassUtils.forName(className, classLoader); // 根据类名 和 classLoader 创建 Class 实例.
 		this.beanClass = resolvedClass;
 		return resolvedClass;
 	}
@@ -1098,7 +1098,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 					"Invalid method override: no method with name '" + mo.getMethodName() +
 					"' on class [" + getBeanClassName() + "]");
 		}
-		else if (count == 1) {
+		else if (count == 1) { // 该方法没有重载
 			// Mark override as not overloaded, to avoid the overhead of arg type checking.
 			mo.setOverloaded(false);
 		}

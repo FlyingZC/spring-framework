@@ -109,7 +109,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
 	@Override
 	public final BeanDefinitionRegistry getRegistry() {
-		return this.registry;
+		return this.registry; // 默认这个对象是 DefaultListableBeanFactory
 	}
 
 	/**
